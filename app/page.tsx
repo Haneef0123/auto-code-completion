@@ -1,7 +1,31 @@
-import { fetchBitbucketRepos } from "@/lib/bitbucket";
+"use client";
 
-export default async function Home() {
-  const repos = await fetchBitbucketRepos("GROWTH");
+import { useEffect, useState } from "react";
+import type { BitbucketRepo } from "@/lib/bitbucket";
+
+export default function Home() {
+  const [repos, setRepos] = useState<BitbucketRepo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchRepos = async () => {
+      try {
+        const response = await fetch("/api/repos");
+        if (!response.ok) {
+          throw new Error(`Failed to fetch: ${response.statusText}`);
+        }
+        const data = await response.json();
+        setRepos(data.repos || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRepos();
+  }, []);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-zinc-900">
@@ -10,9 +34,14 @@ export default async function Home() {
           <select
             className="px-4 py-2 border border-zinc-300 rounded-md bg-white dark:bg-zinc-800 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             defaultValue=""
+            disabled={loading}
           >
             <option value="" disabled>
-              {repos.length ? "Select a repository" : "No repositories found"}
+              {loading
+                ? "Loading repositories..."
+                : repos.length
+                ? "Select a repository"
+                : "No repositories found"}
             </option>
             {repos
               .sort((a, b) => a.name.localeCompare(b.name))
@@ -22,6 +51,11 @@ export default async function Home() {
                 </option>
               ))}
           </select>
+          {error && (
+            <p className="text-sm text-red-600 dark:text-red-400">
+              Error: {error}
+            </p>
+          )}
         </div>
       </main>
     </div>
