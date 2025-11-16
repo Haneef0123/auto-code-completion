@@ -1,0 +1,204 @@
+# Cursor AI Rules for auto-code-completion
+
+## Project Overview
+This is a Next.js 16 project with TypeScript, React 19, and Tailwind CSS 4.
+Focus on type safety, modern React patterns, and Next.js App Router conventions.
+
+## Core Principles
+1. Type Safety First - Always use TypeScript with strict mode
+2. Server Components by Default - Use 'use client' only when necessary
+3. Performance Matters - Optimize bundle size and runtime performance
+4. Accessibility Always - Follow WCAG 2.1 AA standards
+5. Security by Design - Validate inputs, sanitize outputs, prevent XSS/injection
+
+## TypeScript Guidelines
+- Use `interface` for object shapes, `type` for unions/intersections
+- Avoid `any` - use `unknown` if type is truly unknown
+- Leverage TypeScript utility types (Pick, Omit, Partial, etc.)
+- Define prop interfaces for all components
+- Use proper return types for functions
+- Enable strict null checks
+
+## React Best Practices
+- Prefer functional components with hooks
+- Use Server Components for data fetching
+- Add 'use client' directive only for:
+  - useState, useEffect, other client hooks
+  - Event handlers (onClick, onChange, etc.)
+  - Browser APIs (localStorage, window, etc.)
+- Implement error boundaries for error handling
+- Use React.memo() for expensive computations
+- Avoid prop drilling - use context or composition
+
+## Next.js Patterns
+- Use App Router (app/ directory)
+- Server Actions for mutations
+- Dynamic imports for code splitting
+- Next.js Image component for images
+- Metadata API for SEO
+- Route handlers for API endpoints
+- Loading and error UI patterns
+
+## Component Structure
+```typescript
+// Server Component (default)
+interface ComponentProps {
+  id: string;
+  children?: React.ReactNode;
+}
+
+export function Component({ id, children }: ComponentProps) {
+  // Async data fetching allowed here
+  return <div>{children}</div>;
+}
+```
+
+```typescript
+// Client Component (when needed)
+'use client'
+
+import { useState } from 'react';
+
+interface ClientComponentProps {
+  initialValue: string;
+}
+
+export function ClientComponent({ initialValue }: ClientComponentProps) {
+  const [value, setValue] = useState(initialValue);
+  return <button onClick={() => setValue('new')}>{value}</button>;
+}
+```
+
+## Styling Guidelines
+- Use Tailwind utility classes
+- Follow mobile-first responsive design
+- Use semantic color names from Tailwind
+- Group related classes: layout, spacing, colors, typography
+- Extract repeated patterns into components
+- Use Tailwind's dark mode classes when applicable
+
+## File Organization
+```
+app/
+  ├── (routes)/          # Route groups
+  ├── api/               # API routes
+  ├── components/        # Shared components
+  └── layout.tsx         # Root layout
+
+lib/
+  ├── utils/             # Utility functions
+  ├── hooks/             # Custom React hooks
+  ├── types/             # Shared TypeScript types
+  └── constants/         # Application constants
+```
+
+## Naming Conventions
+- Components: PascalCase (UserProfile.tsx)
+- Files: kebab-case or PascalCase matching component name
+- Functions/Variables: camelCase (getUserData)
+- Constants: UPPER_SNAKE_CASE (API_URL)
+- Types/Interfaces: PascalCase (UserData)
+- CSS classes: Tailwind utilities only
+
+## Error Handling
+- Use try-catch for async operations
+- Implement error boundaries for UI errors
+- Provide meaningful error messages
+- Log errors appropriately
+- Handle edge cases explicitly
+- Validate user inputs
+
+## Security
+- Sanitize all user inputs
+- Use environment variables for secrets
+- Implement CSRF protection for forms
+- Validate data on server side
+- Use Content Security Policy headers
+- Prevent XSS with proper escaping
+- Avoid eval() and dangerous HTML insertion
+
+## Performance
+- Use Server Components to reduce client JS
+- Implement lazy loading for heavy components
+- Optimize images (next/image)
+- Use proper caching strategies
+- Minimize re-renders with React.memo
+- Code split with dynamic imports
+- Prefetch critical resources
+
+## Code Quality
+- Write self-documenting code
+- Add comments only when necessary (explain "why", not "what")
+- Keep functions small and focused
+- Follow single responsibility principle
+- Use meaningful variable names
+- Avoid magic numbers/strings
+- DRY (Don't Repeat Yourself)
+
+## Testing Expectations
+- Write testable code
+- Separate business logic from UI
+- Use dependency injection when needed
+- Mock external dependencies
+- Test edge cases and error states
+
+## Git Commit Guidelines
+- Use conventional commits format
+- Keep commits atomic and focused
+- Write clear, descriptive commit messages
+- Reference issues when applicable
+
+## Don't Do This
+❌ Using 'any' type
+❌ Mixing client and server code incorrectly
+❌ Inline styles instead of Tailwind
+❌ Prop drilling more than 2 levels
+❌ Large components (>200 lines)
+❌ Ignoring TypeScript errors
+❌ Using var instead of const/let
+❌ Mutating state directly
+❌ Forgetting to handle loading/error states
+❌ Not validating user inputs
+
+## Do This Instead
+✅ Use specific types or unknown
+✅ Separate client/server components clearly
+✅ Use Tailwind utility classes
+✅ Use context or composition
+✅ Extract smaller components
+✅ Fix TypeScript errors properly
+✅ Use const by default, let when needed
+✅ Use setState or immutable updates
+✅ Always handle loading/error states
+✅ Validate and sanitize inputs
+
+## When Implementing Features
+1. Understand the requirement fully
+2. Check existing patterns in the codebase
+3. Plan the component structure
+4. Implement with type safety
+5. Handle errors and edge cases
+6. Optimize for performance
+7. Test the implementation
+8. Document if complex
+
+## When Debugging
+1. Check TypeScript errors first
+2. Review React DevTools
+3. Check browser console
+4. Verify data flow
+5. Check network requests
+6. Review server logs
+7. Isolate the issue
+8. Fix root cause, not symptoms
+
+## Useful Commands
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run lint` - Run ESLint
+- `npm run start` - Start production server
+
+## References
+- See agents.md for detailed guidelines
+- Check tsconfig.json for TypeScript settings
+- Review eslint.config.mjs for linting rules
