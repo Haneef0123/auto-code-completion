@@ -5,6 +5,13 @@ export interface BitbucketRepo {
   public: boolean;
 }
 
+interface RawRepo {
+  id: number;
+  slug: string;
+  name: string;
+  public: boolean;
+}
+
 export async function fetchBitbucketRepos(
   projectKey: string
 ): Promise<BitbucketRepo[]> {
@@ -34,7 +41,8 @@ export async function fetchBitbucketRepos(
     }
 
     const data = await res.json();
-    return (data.values || []).map((r: any) => ({
+    const values: RawRepo[] = data.values || [];
+    return values.map((r) => ({
       id: r.id,
       slug: r.slug,
       name: r.name,
