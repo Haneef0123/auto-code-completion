@@ -10,13 +10,41 @@ export default function Home() {
 
   useEffect(() => {
     const fetchRepos = async () => {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_BITBUCKET_BASE_URL ||
+        "https://bitbucket.upstox.com";
+      const token = process.env.NEXT_PUBLIC_BITBUCKET_TOKEN;
+
+      if (!token) {
+        setError("NEXT_PUBLIC_BITBUCKET_TOKEN not configured");
+        setLoading(false);
+        return;
+      }
+
+      const url = `${baseUrl}/rest/api/1.0/projects/GROWTH/repos?limit=100`;
+
       try {
-        const response = await fetch("/api/repos");
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
+
         if (!response.ok) {
           throw new Error(`Failed to fetch: ${response.statusText}`);
         }
+
         const data = await response.json();
-        setRepos(data.repos || []);
+        const repoList = (data.values || []).map(
+          (r: { id: number; slug: string; name: string; public: boolean }) => ({
+            id: r.id,
+            slug: r.slug,
+            name: r.name,
+            public: r.public,
+          })
+        );
+        setRepos(repoList);
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
       } finally {
