@@ -1,0 +1,147 @@
+{
+  "project": {
+    "name": "auto-code-completion",
+    "type": "nextjs",
+    "version": "1.0.0",
+    "description": "Auto code completion application built with Next.js, TypeScript, and React"
+  },
+  "framework": {
+    "name": "Next.js",
+    "version": "16.0.3",
+    "router": "App Router",
+    "features": [
+      "Server Components",
+      "Server Actions",
+      "Route Handlers",
+      "Metadata API",
+      "Image Optimization"
+    ]
+  },
+  "language": {
+    "primary": "TypeScript",
+    "version": "5.x",
+    "strictMode": true,
+    "features": [
+      "strict null checks",
+      "strict function types",
+      "no implicit any",
+      "strict property initialization"
+    ]
+  },
+  "styling": {
+    "framework": "Tailwind CSS",
+    "version": "4.x",
+    "approach": "utility-first",
+    "responsive": "mobile-first"
+  },
+  "agentCapabilities": {
+    "codeGeneration": {
+      "enabled": true,
+      "languages": ["TypeScript", "JavaScript", "TSX", "JSX"],
+      "patterns": [
+        "React components",
+        "Server components",
+        "Client components",
+        "Server actions",
+        "API routes",
+        "Utility functions",
+        "Custom hooks"
+      ]
+    },
+    "codeReview": {
+      "enabled": true,
+      "checks": [
+        "Type safety",
+        "React best practices",
+        "Performance optimization",
+        "Security vulnerabilities",
+        "Accessibility",
+        "Code organization"
+      ]
+    },
+    "refactoring": {
+      "enabled": true,
+      "strategies": [
+        "Component extraction",
+        "Type refinement",
+        "Performance optimization",
+        "Code organization",
+        "Dependency injection"
+      ]
+    },
+    "testing": {
+      "enabled": true,
+      "frameworks": ["Jest", "React Testing Library"],
+      "types": ["unit", "integration", "component"]
+    }
+  },
+  "codingStandards": {
+    "typescript": {
+      "preferInterface": true,
+      "avoidAny": true,
+      "useStrictTypes": true,
+      "requireReturnTypes": false,
+      "preferReadonly": true
+    },
+    "react": {
+      "preferFunctionalComponents": true,
+      "preferServerComponents": true,
+      "useHooks": true,
+      "implementErrorBoundaries": true,
+      "avoidPropDrilling": true
+    },
+    "naming": {
+      "components": "PascalCase",
+      "files": "PascalCase or kebab-case",
+      "functions": "camelCase",
+      "constants": "UPPER_SNAKE_CASE",
+      "types": "PascalCase"
+    },
+    "fileOrganization": {
+      "oneComponentPerFile": true,
+      "colocateRelatedFiles": true,
+      "useBarrelExports": true,
+      "keepComponentsSmall": true
+    }
+  },
+  "security": {
+    "validateInputs": true,
+    "sanitizeOutputs": true,
+    "useEnvironmentVariables": true,
+    "preventXSS": true,
+    "preventInjection": true,
+    "followOWASP": true
+  },
+  "performance": {
+    "useServerComponents": true,
+    "implementCodeSplitting": true,
+    "optimizeImages": true,
+    "minimizeClientJS": true,
+    "useCaching": true,
+    "implementLazyLoading": true
+  },
+  "agentBehavior": {
+    "alwaysUseTypeScript": true,
+    "followProjectPatterns": true,
+    "maintainConsistency": true,
+    "prioritizeReadability": true,
+    "optimizeForPerformance": true,
+    "considerAccessibility": true,
+    "handleEdgeCases": true,
+    "provideExplanations": true
+  },
+  "contextFiles": [
+    "agents.md",
+    ".cursorrules",
+    "package.json",
+    "tsconfig.json",
+    "eslint.config.mjs",
+    "next.config.ts"
+  ],
+  "documentation": {
+    "preferSelfDocumentingCode": true,
+    "useJSDocForPublicAPIs": true,
+    "documentComplexLogic": true,
+    "maintainChangelog": true
+  }
+}
