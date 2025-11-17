@@ -8,6 +8,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedRepo, setSelectedRepo] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
     const fetchRepos = async () => {
@@ -62,6 +63,15 @@ export default function Home() {
     setSelectedRepo(projectSlug);
   };
 
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!message.trim()) return;
+
+    // Handle message sending here
+    console.log("Sending message:", message, "for repo:", selectedRepo);
+    setMessage("");
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-zinc-900">
       <main className="flex flex-col items-center gap-6 p-8">
@@ -108,6 +118,37 @@ export default function Home() {
               ))}
             </div>
           </div>
+
+          {/* Chat Bar - appears when repo is selected */}
+          {selectedRepo && (
+            <div className="animate-fadeIn">
+              <form onSubmit={handleSendMessage} className="relative">
+                <div className="flex items-center gap-2 p-3 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 shadow-sm hover:shadow-md transition-shadow">
+                  <input
+                    type="text"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder={`Ask about ${selectedRepo}...`}
+                    className="flex-1 bg-transparent outline-none text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!message.trim()}
+                    className="p-2 rounded-md bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="w-5 h-5 text-zinc-600 dark:text-zinc-300"
+                    >
+                      <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+                    </svg>
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
 
           {error && (
             <p className="text-sm text-red-600 dark:text-red-400">
