@@ -5,6 +5,46 @@ export interface BitbucketRepo {
   public: boolean;
 }
 
+export interface DefaultBranch {
+  id: string;
+  displayId: string;
+  type: string;
+  latestCommit?: string;
+  isDefault?: boolean;
+}
+
+export interface FileItem {
+  path: {
+    components: string[];
+    parent: string;
+    name: string;
+    extension: string | null;
+    toString: string;
+  };
+  type: "FILE" | "DIRECTORY";
+  size?: number;
+}
+
+export interface BrowseResponse {
+  path?: {
+    components: string[];
+    name: string;
+  };
+  children?: {
+    values: FileItem[];
+    size: number;
+    isLastPage: boolean;
+  };
+}
+
+export interface RepositoryContext {
+  slug: string;
+  defaultBranch: string;
+  structure: FileItem[];
+  readme?: string;
+  packageJson?: Record<string, unknown>;
+}
+
 interface CacheEntry {
   data: BitbucketRepo[];
   expires: number;
@@ -187,4 +227,184 @@ export async function fetchBitbucketRepos(
   } finally {
     pendingRequests.delete(cacheKey);
   }
+}
+
+/**
+ * Get the default branch for a repository
+ */
+export async function getDefaultBranch(
+  projectKey: string,
+  repositorySlug: string
+): Promise<string> {
+  const baseUrl =
+    process.env.BITBUCKET_BASE_URL || "https://bitbucket.upstox.com";
+  const token = process.env.BITBUCKET_TOKEN;
+
+  if (!token) {
+    console.warn("BITBUCKET_TOKEN is not set");
+    return "main"; // Default fallback
+  }
+
+  const url = `${baseUrl}/rest/api/1.0/projects/${projectKey}/repos/${repositorySlug}/default-branch`;
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      console.warn(
+        `Failed to fetch default branch: ${res.status} ${res.statusText}`
+      );
+      return "main"; // Fallback
+    }
+
+    const data: DefaultBranch = await res.json();
+    return data.displayId || "main";
+  } catch (err) {
+    console.error("Error fetching default branch:", err);
+    return "main"; // Fallback
+  }
+}
+
+/**
+ * Browse repository files at a specific path
+ */
+export async function browseRepository(
+  projectKey: string,
+  repositorySlug: string,
+  branch: string,
+  path: string = ""
+): Promise<FileItem[]> {
+  const baseUrl =
+    process.env.BITBUCKET_BASE_URL || "https://bitbucket.upstox.com";
+  const token = process.env.BITBUCKET_TOKEN;
+
+  if (!token) {
+    console.warn("BITBUCKET_TOKEN is not set");
+    return [];
+  }
+
+  const pathParam = path ? `/${path}` : "";
+  const url = `${baseUrl}/rest/api/1.0/projects/${projectKey}/repos/${repositorySlug}/browse${pathParam}?at=${branch}&limit=100`;
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      console.warn(`Failed to browse repository: ${res.status} ${res.statusText}`);
+      return [];
+    }
+
+    const data: BrowseResponse = await res.json();
+    return data.children?.values || [];
+  } catch (err) {
+    console.error("Error browsing repository:", err);
+    return [];
+  }
+}
+
+/**
+ * Get file content from repository
+ */
+export async function getFileContent(
+  projectKey: string,
+  repositorySlug: string,
+  branch: string,
+  filePath: string
+): Promise<string | null> {
+  const baseUrl =
+    process.env.BITBUCKET_BASE_URL || "https://bitbucket.upstox.com";
+  const token = process.env.BITBUCKET_TOKEN;
+
+  if (!token) {
+    console.warn("BITBUCKET_TOKEN is not set");
+    return null;
+  }
+
+  const url = `${baseUrl}/rest/api/1.0/projects/${projectKey}/repos/${repositorySlug}/raw/${filePath}?at=${branch}`;
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      // File not found is expected for optional files
+      if (res.status === 404) {
+        return null;
+      }
+      console.warn(`Failed to fetch file ${filePath}: ${res.status} ${res.statusText}`);
+      return null;
+    }
+
+    return await res.text();
+  } catch (err) {
+    console.error(`Error fetching file ${filePath}:`, err);
+    return null;
+  }
+}
+
+/**
+ * Fetch comprehensive repository context for AI analysis
+ */
+export async function fetchRepositoryContext(
+  projectKey: string,
+  repositorySlug: string
+): Promise<RepositoryContext> {
+  // Get default branch first
+  const branch = await getDefaultBranch(projectKey, repositorySlug);
+
+  // Browse repository structure
+  const structure = await browseRepository(
+    projectKey,
+    repositorySlug,
+    branch
+  );
+
+  // Try to fetch README.md
+  const readme = await getFileContent(
+    projectKey,
+    repositorySlug,
+    branch,
+    "README.md"
+  );
+
+  // Try to fetch package.json
+  const packageJsonContent = await getFileContent(
+    projectKey,
+    repositorySlug,
+    branch,
+    "package.json"
+  );
+
+  let packageJson: Record<string, unknown> | undefined;
+  if (packageJsonContent) {
+    try {
+      packageJson = JSON.parse(packageJsonContent);
+    } catch (err) {
+      console.warn("Failed to parse package.json:", err);
+    }
+  }
+
+  return {
+    slug: repositorySlug,
+    defaultBranch: branch,
+    structure,
+    readme: readme || undefined,
+    packageJson,
+  };
 }
